@@ -1,6 +1,7 @@
 package org.example;
 
 import  java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Random;
 
@@ -29,14 +30,14 @@ public class BankAccount {
        return  true;
     }
     public boolean withdraw(int amount) {
-        if (this.balance < amount){
+        if (this.balance > amount){
             this.balance -= amount;
             return  true;
         }
             return  false;
     }
     public boolean transfer(BankAccount otherAccount, int amount){
-        if (this.balance < amount) {
+        if (this.balance > amount) {
             this.balance -= amount;
             otherAccount.deposit(amount);
             return true;
@@ -46,9 +47,10 @@ public class BankAccount {
 
     @Override
     public String toString() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return "Имя: '" + this.name +
                 "', Баланс: '" + this.balance +
-                "', Дата открытия счета: '" + this.openingDate +
+                "', Дата открытия счета: '" + this.openingDate.format(formatter) +
                 "', Заблокирован ли счет: '" + this.isBlocked +
                 "', Номер счета: '" + this.number + "'  ";
     }
