@@ -30,7 +30,7 @@ public class Main {
             totalAge += (currentYear - year);
         }
         double averageAge = (double) totalAge/yearOfManufacture.length;
-        System.out.println("\nСредний возраст авто: '"+ averageAge +"'");
+        System.out.printf("\nСредний возраст авто: '%.1f'\n", averageAge);
         //Коллекции
         List<String> carModels =
                 new ArrayList<>(List.of("Toyota Camry", "BMW X5", "Tesla Model 3", "Tesla Model s",
@@ -45,13 +45,17 @@ public class Main {
         }
         System.out.println("Список с названиями моделей машин после проверки");
         System.out.println(carModels);
-        var result = carModels.stream()
-                .distinct()
-                .sorted(Collections.reverseOrder())
-                .toList();
+        List<String> uniqueModels = new ArrayList<>();
+        for (String model : carModels) {
+            if (!uniqueModels.contains(model)) {
+                uniqueModels.add(model);
+            }
+        }
+        uniqueModels.sort(Collections.reverseOrder());
+
         System.out.println("Список без дубликатов и с отсортированными моделями машин");
-        System.out.println(result);
-        Set<String> sortedList = new HashSet<>(result);
+        System.out.println(uniqueModels);
+        Set<String> sortedList = new HashSet<>(uniqueModels);
         System.out.println("Итоговый Set");
         System.out.println(sortedList);
         //Equals и Hashcode
@@ -118,23 +122,93 @@ public class Main {
             list.forEach(car -> System.out.println("  " + car));
         });
         //Доп задания
+        System.out.println();
         CarDealership carDealership = new CarDealership(carList);
-        System.out.println("\nВсе автомобили:");
-        carDealership.getCars().forEach(System.out::println);
-        carDealership.addCar(new Car("VIN1001", "Camry", "Toyota", 2020, 45000, 23000, TypeOfCar.SEDAN));
-        carDealership.addCar(new Car("VIN1009", "X5", "BMW", 2015, 78000, 45000, TypeOfCar.SUV));
-        System.out.println("\nВсе автомобили:");
-        carDealership.getCars().forEach(System.out::println);
-        System.out.println("Машины по производителю");
-        var list = carDealership.findByManufacturer("BMW");
-        list.forEach(System.out::println);
-        var average = carDealership.averageByType(TypeOfCar.SUV);
-        DecimalFormat myFormat  = new DecimalFormat("#.##");
-        System.out.println("Средняя цена: " + myFormat.format(average));
-        System.out.println("Сортировка машин по году выпуска");
-        list = carDealership.sortedByYear();
-        list.forEach(System.out::println);
-
-
+        Scanner sc = new Scanner(System.in);
+        String input ="";
+        while (!input.equals("quit"))
+        {
+            System.out.println("Доступные методы: printAll, removeCar, addCar, findByManufacturer, averageByType, sortedByYear, countByTypes, minMaxYears, quit");
+            input = sc.nextLine();
+            switch (input)
+            {
+                case "printAll":{
+                    System.out.println("Все автомобили:");
+                    carDealership.getCars().forEach(System.out::println);
+                    break;
+                }
+                case "addCar":{
+                    System.out.println("Добавить машину в автоцентр.\nВведите VIN (должно начинаться с VIN)");
+                    String vin = sc.nextLine().trim().toUpperCase();
+                    System.out.println("Введите модель");
+                    String model = sc.nextLine();
+                    System.out.println("Введите производителя");
+                    String manufacturer = sc.nextLine();
+                    System.out.println("Введите год выпуска");
+                    int year = sc.nextInt();
+                    System.out.println("Введите пробег");
+                    double mileage = sc.nextDouble();
+                    System.out.println("Введите цену");
+                    double price = sc.nextDouble();
+                    sc.nextLine();
+                    System.out.println("Введите тип");
+                    try {
+                        TypeOfCar type = TypeOfCar.valueOf(sc.nextLine().trim().toUpperCase());
+                        carDealership.addCar(new Car(vin, model, manufacturer, year, mileage, price, type));
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Ошибка: неверный тип машины. Доступные значения: " + Arrays.toString(TypeOfCar.values()));
+                    }
+                    break;
+                }
+                case "removeCar":
+                {
+                    System.out.println("Удалить машину из автоцентра.\nВведите VIN");
+                    String vin = sc.nextLine().trim().toUpperCase();
+                    carDealership.removeCarByVin(vin);
+                    break;
+                }
+                case "findByManufacturer":{
+                    System.out.println("Найти все машины указанного производителя\nВведите производителя");
+                    String manufacturer = sc.nextLine();
+                    System.out.println("Машины по производителю");
+                    var list = carDealership.findByManufacturer(manufacturer);
+                    list.forEach(System.out::println);
+                    break;
+                }
+                case "averageByType":
+                {
+                    System.out.println("Средняя цена машин определенного типа.\nВведите тип машины");
+                    try {
+                        TypeOfCar type = TypeOfCar.valueOf(sc.nextLine().trim().toUpperCase());
+                        var average = carDealership.averageByType(type);
+                        DecimalFormat myFormat  = new DecimalFormat("#.##");
+                        System.out.println("Средняя цена: " + myFormat.format(average));
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Ошибка: неверный тип машины. Доступные значения: " + Arrays.toString(TypeOfCar.values()));
+                    }
+                    break;
+                }
+                case "sortedByYear":
+                {
+                    System.out.println("Сортировка машин по году выпуска");
+                    var list = carDealership.sortedByYear();
+                    list.forEach(System.out::println);
+                    break;
+                }
+                case "countByTypes":
+                {
+                    var statisticByCount = carDealership.countByTypes();
+                    statisticByCount.forEach((type, count) -> System.out.println("Тип машины: '"+type +"', Количество: '"+count+"'"));
+                    break;
+                }
+                case "minMaxYears":
+                {
+                    Car[] statisticYears = carDealership.minMaxYears();
+                    System.out.println("Самая старая машина в наличии: " +statisticYears[0]);
+                    System.out.println("Самая новая машина в наличии: " +statisticYears[1]);
+                    break;
+                }
+            }
+        }
     }
 }

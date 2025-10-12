@@ -13,7 +13,7 @@ public class Car implements Comparable<Car> {
     private double price;
     private TypeOfCar type;
 
-    Car (String vin, String model, String manufacturer, int yearOfManufacture, double price, double mileage, TypeOfCar type)
+    public Car (String vin, String model, String manufacturer, int yearOfManufacture, double price, double mileage, TypeOfCar type)
     {
         this.vin = vin;
         this.model = model;
